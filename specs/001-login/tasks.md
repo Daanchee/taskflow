@@ -96,6 +96,16 @@ del repo (`backend/tests/unit/...`, `backend/tests/integration/...`), no `src/**
       F5 mantiene sesión, botón "Cerrar sesión" → `/login` + `/api/projects` vuelve a dar 401.
       Paso 8 (`npm test`) ya cubierto por T032.
 
+      **Confirmado en producción** (Vercel + Render): se detectó un segundo bug, esta vez de
+      infraestructura — frontend (`vercel.app`) y backend (`onrender.com`) en dominios distintos
+      hacían que el navegador tratara la cookie de sesión como de tercero y la descartara tras un
+      login "exitoso" (200 OK sin sesión real persistida). Corregido con
+      `frontend/vercel.json` (rewrite de `/api/*` hacia Render server-to-server + fallback SPA a
+      `index.html`) y `VITE_API_URL=/api` en las env vars de Vercel, para que la cookie quede
+      first-party. Reverificado con Playwright contra las URLs reales: `/login` directo ya no da
+      404, login → `/`, cookie `taskflow_session` persiste (`Secure`, `HttpOnly`, `SameSite=Lax`),
+      F5 mantiene sesión, logout vuelve a `/login` e invalida el acceso a `/api/projects`.
+
 ## Dependencias
 - Fase 1 (T001-T003) antes que Fase 3 (necesita `cookie-parser` instalado y las env vars
   definidas antes de escribir código que las use).

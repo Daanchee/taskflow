@@ -188,6 +188,8 @@ La demo en vivo de arriba corre exactamente con esta configuración: backend en 
 
 Nota: el plan free de Render "duerme" el backend tras ~15 minutos sin tráfico; la primera petición tras la inactividad puede tardar 30-50s en responder mientras despierta.
 
+> ✅ Este flujo completo (login, cookie de sesión, F5, logout) está verificado end-to-end contra la demo en vivo de arriba, con el proxy de `vercel.json` y `VITE_API_URL=/api` ya aplicados.
+
 ## Metodología de desarrollo (SDD)
 
 Las features nuevas se desarrollan con Spec-Driven Development: primero se especifica el qué,

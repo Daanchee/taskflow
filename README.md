@@ -115,7 +115,7 @@ npm run dev       # http://localhost:5173
 **frontend/.env**
 | Variable | Descripción | Default |
 |---|---|---|
-| `VITE_API_URL` | URL base de la API | `http://localhost:4000/api` |
+| `VITE_API_URL` | URL base de la API | `http://localhost:4000/api` (en producción, `/api` — ver [Despliegue](#despliegue-gratuito-render--vercel)) |
 
 ## Scripts disponibles
 
@@ -177,12 +177,14 @@ La demo en vivo de arriba corre exactamente con esta configuración: backend en 
 **2. Frontend en Vercel**
 1. Entra a [vercel.com](https://vercel.com) y haz "Sign in with GitHub".
 2. "Add New" → "Project" → selecciona este repositorio, con **Root Directory = `frontend`**.
-3. En "Environment Variables" agrega `VITE_API_URL` = `https://TU-BACKEND.onrender.com/api` (la URL del paso 1 + `/api`).
+3. En "Environment Variables" agrega `VITE_API_URL` = `/api` (relativo — ver nota abajo sobre por qué no apunta directo a Render).
 4. Deploy. Copia la URL pública (algo como `https://taskflow.vercel.app`).
 
 **3. Conectar CORS**
 1. Vuelve a Render → tu servicio → "Environment" → edita `CORS_ORIGIN` con la URL de Vercel del paso 2 (sin `/` final).
 2. Guarda: Render redepliega automáticamente.
+
+**Por qué `VITE_API_URL=/api` y no la URL de Render directo**: la sesión de login usa una cookie httpOnly (ver [Decisiones de diseño](#decisiones-de-diseño)). Si el frontend llamara directo a `https://TU-BACKEND.onrender.com`, el navegador trataría esa cookie como de **tercero** (dominio distinto al de Vercel) y la bloquearía por las políticas de third-party cookies de los navegadores modernos — el login "funcionaría" (200 OK) pero la sesión nunca quedaría guardada. `frontend/vercel.json` resuelve esto con un rewrite: las llamadas a `/api/*` se reenvían server-to-server a Render, así el navegador ve todo como un único origen (`vercel.app`) y la cookie queda first-party. Si cambiás la URL del backend, actualizá el `destination` en `frontend/vercel.json` (Vercel no interpola variables de entorno ahí).
 
 Nota: el plan free de Render "duerme" el backend tras ~15 minutos sin tráfico; la primera petición tras la inactividad puede tardar 30-50s en responder mientras despierta.
 

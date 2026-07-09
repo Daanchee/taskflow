@@ -7,6 +7,8 @@ services:
       - PORT=4000
       - NODE_ENV=production
       - CORS_ORIGIN=http://localhost:5173
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?Definí ADMIN_PASSWORD en un .env junto a docker-compose.yml}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
       interval: 10s

@@ -1,11 +1,14 @@
 import { InMemoryProjectRepository } from './in-memory/in-memory-project.repository.js';
 import { InMemoryTaskRepository } from './in-memory/in-memory-task.repository.js';
+import { InMemorySessionRepository } from './in-memory/in-memory-session.repository.js';
 import type { IProjectRepository } from './interfaces/project.repository.interface.js';
 import type { ITaskRepository } from './interfaces/task.repository.interface.js';
+import type { ISessionRepository } from './interfaces/session.repository.interface.js';
 
 export interface Repositories {
   projectRepository: IProjectRepository;
   taskRepository: ITaskRepository;
+  sessionRepository: ISessionRepository;
 }
 
 /**
@@ -20,5 +23,6 @@ export function createRepositories(): Repositories {
   return {
     projectRepository: new InMemoryProjectRepository(),
     taskRepository: new InMemoryTaskRepository(),
+    sessionRepository: new InMemorySessionRepository(),
   };
 }

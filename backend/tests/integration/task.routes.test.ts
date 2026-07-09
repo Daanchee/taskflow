@@ -6,20 +6,23 @@ import { createRepositories } from '../../src/repositories/index.js';
 
 describe('Task routes', () => {
   let app: Express;
+  let agent: ReturnType<typeof request.agent>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = createApp(createRepositories());
+    agent = request.agent(app);
+    await agent.post('/api/auth/login').send({ username: 'admin', password: 'test-admin-password' });
   });
 
   async function createProject(name = 'Proyecto de prueba') {
-    const res = await request(app).post('/api/projects').send({ name });
+    const res = await agent.post('/api/projects').send({ name });
     return res.body as { id: string };
   }
 
   it('POST /api/projects/:projectId/tasks crea una tarea', async () => {
     const project = await createProject();
 
-    const res = await request(app)
+    const res = await agent
       .post(`/api/projects/${project.id}/tasks`)
       .send({ title: 'Diseñar arquitectura', priority: 'HIGH' });
 
@@ -29,7 +32,7 @@ describe('Task routes', () => {
   });
 
   it('POST tasks en un proyecto inexistente retorna 404', async () => {
-    const res = await request(app)
+    const res = await agent
       .post('/api/projects/11111111-1111-1111-1111-111111111111/tasks')
       .send({ title: 'X' });
 
@@ -38,12 +41,12 @@ describe('Task routes', () => {
 
   it('GET tasks filtra por status', async () => {
     const project = await createProject();
-    await request(app).post(`/api/projects/${project.id}/tasks`).send({ title: 'A' });
-    const doneTask = await request(app)
+    await agent.post(`/api/projects/${project.id}/tasks`).send({ title: 'A' });
+    const doneTask = await agent
       .post(`/api/projects/${project.id}/tasks`)
       .send({ title: 'B', status: 'DONE' });
 
-    const res = await request(app).get(`/api/projects/${project.id}/tasks?status=DONE`);
+    const res = await agent.get(`/api/projects/${project.id}/tasks?status=DONE`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(1);
     expect(res.body[0].id).toBe(doneTask.body.id);
@@ -51,11 +54,11 @@ describe('Task routes', () => {
 
   it('PUT /api/tasks/:id mueve una tarea de status (kanban drag&drop)', async () => {
     const project = await createProject();
-    const task = await request(app)
+    const task = await agent
       .post(`/api/projects/${project.id}/tasks`)
       .send({ title: 'Mover' });
 
-    const res = await request(app)
+    const res = await agent
       .put(`/api/tasks/${task.body.id}`)
       .send({ status: 'IN_PROGRESS' });
 
@@ -65,19 +68,19 @@ describe('Task routes', () => {
 
   it('al eliminar el proyecto, sus tareas dejan de existir (cascada)', async () => {
     const project = await createProject();
-    const task = await request(app).post(`/api/projects/${project.id}/tasks`).send({ title: 'X' });
+    const task = await agent.post(`/api/projects/${project.id}/tasks`).send({ title: 'X' });
 
-    await request(app).delete(`/api/projects/${project.id}`);
+    await agent.delete(`/api/projects/${project.id}`);
 
-    const res = await request(app).get(`/api/tasks/${task.body.id}`);
+    const res = await agent.get(`/api/tasks/${task.body.id}`);
     expect(res.status).toBe(404);
   });
 
   it('DELETE /api/tasks/:id elimina una tarea', async () => {
     const project = await createProject();
-    const task = await request(app).post(`/api/projects/${project.id}/tasks`).send({ title: 'X' });
+    const task = await agent.post(`/api/projects/${project.id}/tasks`).send({ title: 'X' });
 
-    const res = await request(app).delete(`/api/tasks/${task.body.id}`);
+    const res = await agent.delete(`/api/tasks/${task.body.id}`);
     expect(res.status).toBe(204);
   });
 });

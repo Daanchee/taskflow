@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import swaggerUi from 'swagger-ui-express';
@@ -12,8 +13,9 @@ import { createRepositories, type Repositories } from './repositories/index.js';
 export function createApp(repositories: Repositories = createRepositories()): Express {
   const app = express();
 
-  app.use(cors({ origin: env.CORS_ORIGIN }));
+  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
   app.use(express.json());
+  app.use(cookieParser());
 
   app.use('/health', createHealthRouter());
   app.use('/api', createApiRouter(repositories));

@@ -10,6 +10,8 @@ Gestor de proyectos y tareas estilo Kanban, hecho como proyecto personal para mo
 
 > El backend está en el plan free de Render y "duerme" tras ~15 min sin tráfico. Si la demo tarda 30-50s en cargar la primera vez, es normal: solo está despertando.
 
+Login de demo: usuario `admin`, contraseña `312`.
+
 ## Por qué hice este proyecto
 
 Quería tener algo en mi GitHub que mostrara cómo pienso la arquitectura de un proyecto full-stack de punta a punta, no solo un CRUD suelto. Elegí un tablero Kanban porque es un dominio simple de entender pero que igual obliga a resolver cosas reales: relaciones entre entidades, filtros, estado compartido entre componentes, drag & drop, y una API bien diseñada detrás.
@@ -74,6 +76,7 @@ La pieza que más me interesaba dejar bien resuelta es el patrón Repository: lo
 ### Opción 1: Docker
 
 ```bash
+cp .env.example .env   # completá ADMIN_PASSWORD antes de continuar
 docker compose up --build
 ```
 
@@ -105,6 +108,9 @@ npm run dev       # http://localhost:5173
 | `PORT` | Puerto del servidor | `4000` |
 | `NODE_ENV` | Entorno de ejecución | `development` |
 | `CORS_ORIGIN` | Origen permitido por CORS | `http://localhost:5173` |
+| `ADMIN_USERNAME` | Usuario del login admin | `admin` |
+| `ADMIN_PASSWORD` | Contraseña del login admin (obligatoria, sin default) | — |
+| `SESSION_COOKIE_NAME` | Nombre de la cookie de sesión | `taskflow_session` |
 
 **frontend/.env**
 | Variable | Descripción | Default |
@@ -137,7 +143,7 @@ Con el backend corriendo, la documentación interactiva (Swagger UI) está dispo
 
 ## Testing
 
-**Backend** — 28 tests (unitarios de repositorios/services + integración de rutas con Supertest), que cubren el CRUD completo, los filtros, y el borrado en cascada de tareas al eliminar un proyecto:
+**Backend** — 51 tests (unitarios de repositorios/services + integración de rutas con Supertest), que cubren el CRUD completo, los filtros, el borrado en cascada de tareas al eliminar un proyecto, y el login/logout/protección de rutas:
 
 ```bash
 cd backend
@@ -165,7 +171,7 @@ La demo en vivo de arriba corre exactamente con esta configuración: backend en 
 **1. Backend en Render**
 1. Entra a [render.com](https://render.com) y haz "Sign in with GitHub".
 2. "New" → "Blueprint" (o "Web Service" manual) → selecciona este repositorio, con **Root Directory = `backend`**. Render detecta `render.yaml` automáticamente si usas Blueprint.
-3. Deja `CORS_ORIGIN` vacío por ahora, lo actualizas en el paso 3.
+3. Completa `ADMIN_USERNAME` y `ADMIN_PASSWORD` (las credenciales del login admin); deja `CORS_ORIGIN` vacío por ahora, lo actualizas en el paso 3.
 4. Al terminar el deploy, copia la URL pública (algo como `https://taskflow-backend.onrender.com`).
 
 **2. Frontend en Vercel**
@@ -179,6 +185,24 @@ La demo en vivo de arriba corre exactamente con esta configuración: backend en 
 2. Guarda: Render redepliega automáticamente.
 
 Nota: el plan free de Render "duerme" el backend tras ~15 minutos sin tráfico; la primera petición tras la inactividad puede tardar 30-50s en responder mientras despierta.
+
+## Metodología de desarrollo (SDD)
+
+Las features nuevas se desarrollan con Spec-Driven Development: primero se especifica el qué,
+después se planea el cómo, luego se desglosa en tareas y recién ahí se implementa. Esto vive como
+un conjunto de skills de Claude Code:
+
+| Comando | Qué hace |
+|---|---|
+| `/constitution` | Crea o actualiza `.specify/memory/constitution.md`, los principios no negociables del proyecto |
+| `/specify` | Genera `specs/NNN-slug/spec.md` (qué y para quién, sin implementación) |
+| `/clarify` | Resuelve ambigüedades del spec antes de planear |
+| `/plan` | Genera `specs/NNN-slug/plan.md` (diseño técnico, validado contra la constitución) |
+| `/tasks` | Genera `specs/NNN-slug/tasks.md` (tareas atómicas y ordenadas) |
+| `/implement` | Ejecuta las tareas, marcándolas completadas y corriendo tests/lint |
+
+Cada comando solo lee el artefacto de la fase anterior (no el chat completo), lo que mantiene el
+contexto — y el consumo de tokens — bajo control incluso en features grandes.
 
 ## Qué le falta (a propósito)
 

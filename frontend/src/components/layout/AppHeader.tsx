@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { KanbanSquare, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLogout } from '@/features/auth/hooks/useAuthMutations'
+import { ThemeToggle } from '@/features/theme/components/ThemeToggle'
 
 export function AppHeader() {
   const logout = useLogout()
@@ -13,15 +14,18 @@ export function AppHeader() {
           <KanbanSquare className="h-5 w-5" />
           TaskFlow
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => logout.mutate()}
-          disabled={logout.isPending}
-        >
-          <LogOut className="h-4 w-4" />
-          Cerrar sesión
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => logout.mutate()}
+            disabled={logout.isPending}
+          >
+            <LogOut className="h-4 w-4" />
+            Cerrar sesión
+          </Button>
+        </div>
       </div>
     </header>
   )

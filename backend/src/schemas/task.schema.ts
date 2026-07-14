@@ -16,6 +16,7 @@ export const taskSchema = z.object({
   dueDate: z.string().datetime().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  completedAt: z.string().datetime().optional(),
 });
 
 export const createTaskSchema = z.object({

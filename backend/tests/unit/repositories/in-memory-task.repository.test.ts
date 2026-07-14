@@ -52,4 +52,36 @@ describe('InMemoryTaskRepository', () => {
     const result = await repo.update('no-existe', { title: 'X' });
     expect(result).toBeNull();
   });
+
+  it('findAll trae las tareas de todos los proyectos', async () => {
+    const otherProjectId = '22222222-2222-2222-2222-222222222222';
+    await repo.create(projectId, { title: 'A', status: 'TODO', priority: 'LOW' });
+    await repo.create(otherProjectId, { title: 'B', status: 'TODO', priority: 'LOW' });
+
+    const result = await repo.findAll();
+    expect(result).toHaveLength(2);
+  });
+
+  it('fija completedAt la primera vez que una tarea pasa a DONE', async () => {
+    const task = await repo.create(projectId, { title: 'A', status: 'TODO', priority: 'LOW' });
+    expect(task.completedAt).toBeUndefined();
+
+    const updated = await repo.update(task.id, { status: 'DONE' });
+    expect(updated?.completedAt).toBeDefined();
+  });
+
+  it('no sobrescribe completedAt si la tarea sale y vuelve a entrar a DONE', async () => {
+    const task = await repo.create(projectId, { title: 'A', status: 'TODO', priority: 'LOW' });
+    const firstDone = await repo.update(task.id, { status: 'DONE' });
+    const backToProgress = await repo.update(task.id, { status: 'IN_PROGRESS' });
+    const secondDone = await repo.update(task.id, { status: 'DONE' });
+
+    expect(backToProgress?.completedAt).toBe(firstDone?.completedAt);
+    expect(secondDone?.completedAt).toBe(firstDone?.completedAt);
+  });
+
+  it('fija completedAt si una tarea se crea directamente en DONE', async () => {
+    const task = await repo.create(projectId, { title: 'A', status: 'DONE', priority: 'LOW' });
+    expect(task.completedAt).toBeDefined();
+  });
 });

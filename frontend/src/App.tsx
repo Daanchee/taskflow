@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProjectsListPage } from '@/routes/ProjectsListPage'
 import { ProjectBoardPage } from '@/routes/ProjectBoardPage'
+import { DashboardPage } from '@/routes/DashboardPage'
 import { NotFoundPage } from '@/routes/NotFoundPage'
 import { LoginPage } from '@/routes/LoginPage'
 import { RequireAuth } from '@/routes/RequireAuth'
@@ -14,6 +15,7 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<ProjectsListPage />} />
           <Route path="/projects/:projectId" element={<ProjectBoardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

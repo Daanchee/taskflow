@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { KanbanSquare, LogOut } from 'lucide-react'
+import { KanbanSquare, LayoutDashboard, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLogout } from '@/features/auth/hooks/useAuthMutations'
 import { ThemeToggle } from '@/features/theme/components/ThemeToggle'
@@ -15,6 +15,10 @@ export function AppHeader() {
           TaskFlow
         </Link>
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/dashboard" />}>
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Button>
           <ThemeToggle />
           <Button
             variant="outline"

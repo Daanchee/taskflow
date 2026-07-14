@@ -11,6 +11,7 @@ export interface Task {
   dueDate?: string
   createdAt: string
   updatedAt: string
+  completedAt?: string
 }
 
 export interface CreateTaskDTO {

@@ -10,6 +10,10 @@ import type { ITaskRepository } from '../interfaces/task.repository.interface.js
 export class InMemoryTaskRepository implements ITaskRepository {
   private readonly tasks = new Map<string, Task>();
 
+  async findAll(): Promise<Task[]> {
+    return Array.from(this.tasks.values());
+  }
+
   async findByProjectId(projectId: string, filters: TaskFiltersQuery = {}): Promise<Task[]> {
     let result = Array.from(this.tasks.values()).filter((task) => task.projectId === projectId);
 
@@ -55,6 +59,7 @@ export class InMemoryTaskRepository implements ITaskRepository {
       dueDate: data.dueDate,
       createdAt: now,
       updatedAt: now,
+      completedAt: data.status === 'DONE' ? now : undefined,
     };
     this.tasks.set(task.id, task);
     return task;
@@ -64,10 +69,13 @@ export class InMemoryTaskRepository implements ITaskRepository {
     const existing = this.tasks.get(id);
     if (!existing) return null;
 
+    const now = new Date().toISOString();
     const updated: Task = {
       ...existing,
       ...data,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      completedAt:
+        data.status === 'DONE' && !existing.completedAt ? now : existing.completedAt,
     };
     this.tasks.set(id, updated);
     return updated;

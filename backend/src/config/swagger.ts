@@ -34,6 +34,49 @@ export const swaggerSpec = swaggerJSDoc({
             dueDate: { type: 'string', format: 'date-time' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
+            completedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        DashboardStats: {
+          type: 'object',
+          properties: {
+            byStatus: {
+              type: 'object',
+              properties: {
+                TODO: { type: 'integer' },
+                IN_PROGRESS: { type: 'integer' },
+                DONE: { type: 'integer' },
+              },
+            },
+            byPriority: {
+              type: 'object',
+              properties: {
+                LOW: { type: 'integer' },
+                MEDIUM: { type: 'integer' },
+                HIGH: { type: 'integer' },
+              },
+            },
+            byProject: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  projectId: { type: 'string', format: 'uuid' },
+                  projectName: { type: 'string' },
+                  taskCount: { type: 'integer' },
+                },
+              },
+            },
+            completedTrend: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  date: { type: 'string', format: 'date' },
+                  count: { type: 'integer' },
+                },
+              },
+            },
           },
         },
         Error: {

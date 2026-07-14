@@ -6,6 +6,7 @@ import type {
 } from '../../schemas/task.schema.js';
 
 export interface ITaskRepository {
+  findAll(): Promise<Task[]>;
   findByProjectId(projectId: string, filters?: TaskFiltersQuery): Promise<Task[]>;
   findById(id: string): Promise<Task | null>;
   create(projectId: string, data: CreateTaskDTO): Promise<Task>;
